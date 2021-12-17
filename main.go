@@ -8,28 +8,6 @@ import (
 	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
-// cache = redis.Redis(host='redis', port=6379)
-/**
-
-def get_hit_count():
-    retries = 5
-    while True:
-        try:
-            return cache.incr('hits')
-        except redis.exceptions.ConnectionError as exc:
-            if retries == 0:
-                raise exc
-            retries -= 1
-            time.sleep(0.5)
-
-
-@app.route('/')
-def hello():
-    count = get_hit_count()
-    return 'Hello World! I have been seen {} times.\n'.format(count)
-
-**/
-
 func main() {
 	driver, err := neo4j.NewDriver("bolt://neo4j:7687", neo4j.BasicAuth("neo4j", "test", "")) /*func(c *neo4j.Config) {
 		// https://neo4j.com/developer/docker-run-neo4j/
@@ -57,6 +35,20 @@ func main() {
 			result, err := transaction.Run(
 				"CREATE (a:Greeting) SET a.message = $message RETURN a.message + ', from node ' + id(a)",
 				map[string]interface{}{"message": "hello, world"})
+
+			/**
+				Creating two nodes and connect them
+
+				CREATE (a:Greeting) SET a.message = "hello, world" RETURN a.message + ', from node ' + id(a)
+
+				CREATE (b:Movie) SET b.title = "Wall Street" RETURN b.title + ', from node ' + id(b)
+
+				MATCH
+				(a:Greeting {message: "hello, world"}),
+				(wallStreet:Movie {title: 'Wall Street'})
+				MERGE (a)-[r:ACTED_IN]->(wallStreet)
+				RETURN a.message, type(r), wallStreet.title
+			**/
 
 			if err != nil {
 				return nil, err
