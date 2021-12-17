@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/kataras/iris/v12"
 	"log"
 	"net/http"
+
+	"github.com/kataras/iris/v12"
+	neo4j "github.com/neo4j/neo4j-go-driver/neo4j"
 )
 
 // cache = redis.Redis(host='redis', port=6379)
@@ -29,16 +31,58 @@ def hello():
 **/
 
 func main() {
+	driver, err := neo4j.NewDriver("bolt://neo4j:7687", neo4j.BasicAuth("neo4j", "test", ""), func(c *neo4j.Config) {
+		// https://neo4j.com/developer/docker-run-neo4j/
+		// By default, the docker image does not have certificates installed.
+		// This means that you will need to disable encryption when connecting with a driver.
+		c.Encrypted = false
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer driver.Close()
+
 	app := iris.New()
 	app.Get("/", func(ctx iris.Context) {
-		ctx.JSON(iris.Map{
-			"code":  http.StatusOK,
-			"data": "hello world!",
+
+		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+		defer session.Close()
+
+		greeting, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
+			result, err := transaction.Run(
+				"CREATE (a:Greeting) SET a.message = $message RETURN a.message + ', from node ' + id(a)",
+				map[string]interface{}{"message": "hello, world"})
+
+			if err != nil {
+				return nil, err
+			}
+
+			if result.Next() {
+				return result.Record().Values[0], nil
+			}
+
+			return nil, result.Err()
 		})
+
+		// for result.Next() {
+		// 	record = result.Record();
+		// 	if value, ok := record.Get('field_name'); ok {
+		// 		// a value with alias field_name was found
+		// 		// process value
+		// 	}
+		// }
+
+		if err != nil {
+			ctx.StopWithError(iris.StatusBadRequest, err)
+		} else {
+			ctx.JSON(iris.Map{
+				"code": http.StatusOK,
+				"data": greeting.(string),
+			})
+		}
 	})
-	
-	
-	err := app.Run(
+
+	err = app.Run(
 		// Start the web server at localhost:5000
 		iris.Addr(":5000"),
 		// skip err server closed when CTRL/CMD+C pressed:
@@ -48,6 +92,6 @@ func main() {
 	)
 
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err)
 	}
 }

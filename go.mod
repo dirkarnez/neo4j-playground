@@ -25,18 +25,21 @@ require (
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742
 	github.com/ryanuber/columnize v2.1.0+incompatible
 	github.com/shurcooL/sanitized_anchor_name v1.0.0
-	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
-	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
-	golang.org/x/sys v0.0.0-20191025090151-53bf42e6b339
-	golang.org/x/text v0.3.2
-	gopkg.in/yaml.v2 v2.2.4
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
+	golang.org/x/text v0.3.6
+	gopkg.in/yaml.v2 v2.4.0
 )
+
+require github.com/neo4j/neo4j-go-driver/v4 v4.4.0 // indirect
 
 require (
 	github.com/CloudyKit/jet/v3 v3.0.0 // indirect
 	github.com/iris-contrib/jade v1.1.3 // indirect
 	github.com/iris-contrib/pongo2 v0.0.1 // indirect
 	github.com/kataras/sitemap v0.0.5 // indirect
+	github.com/neo4j/neo4j-go-driver v1.8.3
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	gopkg.in/ini.v1 v1.51.1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2 // indirect
