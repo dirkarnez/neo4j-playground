@@ -32,7 +32,7 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/neo4j/neo4j-go-driver/v4 v4.4.0 // indirect
+require github.com/neo4j/neo4j-go-driver/v4 v4.4.0
 
 require (
 	github.com/CloudyKit/jet/v3 v3.0.0 // indirect

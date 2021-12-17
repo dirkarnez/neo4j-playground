@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/kataras/iris/v12"
-	neo4j "github.com/neo4j/neo4j-go-driver/neo4j"
+	"github.com/neo4j/neo4j-go-driver/v4/neo4j"
 )
 
 // cache = redis.Redis(host='redis', port=6379)
@@ -31,12 +31,13 @@ def hello():
 **/
 
 func main() {
-	driver, err := neo4j.NewDriver("bolt://neo4j:7687", neo4j.BasicAuth("neo4j", "test", ""), func(c *neo4j.Config) {
+	driver, err := neo4j.NewDriver("bolt://neo4j:7687", neo4j.BasicAuth("neo4j", "test", "")) /*func(c *neo4j.Config) {
 		// https://neo4j.com/developer/docker-run-neo4j/
 		// By default, the docker image does not have certificates installed.
 		// This means that you will need to disable encryption when connecting with a driver.
 		c.Encrypted = false
-	})
+	}*/
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,8 +45,12 @@ func main() {
 
 	app := iris.New()
 	app.Get("/", func(ctx iris.Context) {
-
 		session := driver.NewSession(neo4j.SessionConfig{AccessMode: neo4j.AccessModeWrite})
+		if err != nil {
+			ctx.StatusCode(iris.StatusBadRequest)
+			return
+		}
+
 		defer session.Close()
 
 		greeting, err := session.WriteTransaction(func(transaction neo4j.Transaction) (interface{}, error) {
@@ -64,6 +69,15 @@ func main() {
 			return nil, result.Err()
 		})
 
+		if err != nil {
+			ctx.StatusCode(iris.StatusBadRequest)
+		} else {
+			ctx.JSON(iris.Map{
+				"code": http.StatusOK,
+				"data": greeting.(string),
+			})
+		}
+
 		// for result.Next() {
 		// 	record = result.Record();
 		// 	if value, ok := record.Get('field_name'); ok {
@@ -71,15 +85,6 @@ func main() {
 		// 		// process value
 		// 	}
 		// }
-
-		if err != nil {
-			ctx.StopWithError(iris.StatusBadRequest, err)
-		} else {
-			ctx.JSON(iris.Map{
-				"code": http.StatusOK,
-				"data": greeting.(string),
-			})
-		}
 	})
 
 	err = app.Run(
