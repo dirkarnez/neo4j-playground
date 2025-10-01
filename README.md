@@ -1,5 +1,5 @@
-github-docker-compose-action
-============================
-From https://github.com/peter-evans/docker-compose-actions-workflow
+neo4j-playground
+================
 
-[![Actions Status](https://github.com/dirkarnez/github-docker-compose-action/workflows/docker-compose-actions-workflow/badge.svg)](https://github.com/dirkarnez/github-docker-compose-action/actions)
+### Action
+- [dirkarnez/neo4j-action](https://github.com/dirkarnez/neo4j-action/tree/main)
